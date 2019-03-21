@@ -59,19 +59,20 @@ class App extends Component {
     }
   }
 
+  renderPlacedTiles () {
+    return this.state.tiles.map((tile, key) => <Tile x={tile[0]} y={tile[1]} key={key}/>)
+  }
+
+  renderPossibleTiles () {
+    return this.state.possibles.map((tile, key) => <PossibleTile x={tile[0]} y={tile[1]} onTileClick={this.createTile.bind(this)} key={key}/>)
+  }
+
   render() {
-    console.log(this.state.tiles, this.state.possibles)
     return (
       <PanZoomContainer>
         <div className='tile-grid'>
-          {
-            this.state.tiles.map((tile, key) => <Tile x={tile[0]} y={tile[1]} key={key}/>)
-          }
-          {
-            this.state.possibles.map((tile, key) => {
-            return <PossibleTile x={tile[0]} y={tile[1]} onTileClick={this.createTile.bind(this)} key={key}/>
-          })
-          }
+          { this.renderPlacedTiles() }
+          { this.renderPossibleTiles() }
         </div>
       </PanZoomContainer>
     );
