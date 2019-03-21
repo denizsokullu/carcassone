@@ -1,0 +1,24 @@
+.App {
+  text-align: center;
+}
+
+#root {
+  overflow: hidden;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.tile-grid {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+@import 'tile';
