@@ -4,6 +4,12 @@
   border: 1px solid #DDD;
   box-sizing: border-box;
 
+  img {
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+  }
+
   &.possible {
     opacity: .3;
     background-color: green;

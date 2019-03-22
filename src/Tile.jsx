@@ -1,10 +1,45 @@
 import React, { Component } from 'react';
+import monasteryImage from './tiles/monastery/Monastery.png';
 
 const TILE_SIZE = 100;
 const TILE_START_X = 0;
 const TILE_START_Y = 0;
 
-export default class Tile extends Component {
+export class PossibleTile {
+  constructor({ x , y , onTileClick }) {
+    this.x = x;
+    this.y = y;
+    this.onTileClickParentHandler = onTileClick || (() => {});
+  }
+
+  onTileClick() {
+    this.onTileClickParentHandler({ x: this.x, y: this.y });
+  }
+
+  component () {
+    return <BaseTileComponent x={this.x} y={this.y} possible onClick={this.onTileClick.bind(this)}/>
+  }
+}
+
+class PlacedTile extends PossibleTile {
+  constructor(props) {
+    super(props);
+    this.orientation = props.orientation || 0;
+  }
+}
+
+
+export class MonasteryTile extends PlacedTile {
+  component () {
+    return(
+      <BaseTileComponent x={this.x} y={this.y}>
+        <img alt='monastery tile' src={monasteryImage}/>
+      </BaseTileComponent>
+    )
+  }
+}
+
+class BaseTileComponent extends Component {
   style () {
     return {
       width: TILE_SIZE,
@@ -14,13 +49,18 @@ export default class Tile extends Component {
     }
   }
 
+  onTileClick () {
+    console.log('this.happened')
+    if(this.props.onClick) {
+      console.log('this.happened')
+      this.props.onClick()
+    }
+  }
+
   render() {
     return (
-      <div className='tile' style={this.style()}>
-        {/* <div className='side side-1'>1</div>
-        <div className='side side-2'>2</div>
-        <div className='side side-3'>3</div>
-        <div className='side side-4'>4</div> */}
+      <div className={`tile ${this.props.possible ? 'possible' : ''}`} style={this.style()} onClick={this.onTileClick.bind(this)}>
+        { this.props.children }
       </div>
     );
   }

@@ -1,9 +1,5 @@
 import React, { Component } from 'react';
 
-class MonasteryTile extends Tile {
-
-}
-
 // 1 City Tiles
 
 class OneCityTile extends Tile {
@@ -81,10 +77,7 @@ export default class Tile extends Component {
   render() {
     return (
       <div className='tile' style={this.style()}>
-        {/* <div className='side side-1'>1</div>
-        <div className='side side-2'>2</div>
-        <div className='side side-3'>3</div>
-        <div className='side side-4'>4</div> */}
+        { this.props.children }
       </div>
     );
   }
