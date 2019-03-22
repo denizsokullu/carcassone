@@ -91,13 +91,10 @@ class App extends Component {
   }
 
   renderPossibleTiles () {
-    console.log(this.state.possibles)
     return this.state.possibles.map((tile, key) => tile.component())
   }
 
   render() {
-    console.log(this.renderPlacedTiles());
-    console.log(this.renderPossibleTiles());
     return (
       <PanZoomContainer>
         <div className='tile-grid'>

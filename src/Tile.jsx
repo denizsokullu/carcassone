@@ -5,6 +5,8 @@ const TILE_SIZE = 100;
 const TILE_START_X = 0;
 const TILE_START_Y = 0;
 
+const GRASS = Symbol('grass');
+
 export class PossibleTile {
   constructor({ x , y , onTileClick }) {
     this.x = x;
@@ -26,16 +28,45 @@ class PlacedTile extends PossibleTile {
     super(props);
     this.orientation = props.orientation || 0;
   }
+
+  checkPlacing ({neighborTiles}) {
+    return true;
+  }
+
+  getNeighbors () {
+    const { x, y } = this;
+    return {
+      left: { x: x-1, y},
+      top: { x, y: y-1 },
+      right: { x: x +1, y},
+      bottom: { x, y: y+1 },
+    }
+  }
 }
 
 
 export class MonasteryTile extends PlacedTile {
+
+  getSides () {
+    // Use the orientation here
+    return {
+      left: GRASS,
+      top: GRASS,
+      right: GRASS,
+      bottom: GRASS,
+    }
+  }
+
   component () {
     return(
       <BaseTileComponent x={this.x} y={this.y}>
         <img alt='monastery tile' src={monasteryImage}/>
       </BaseTileComponent>
     )
+  }
+
+  checkPlacing ({ left, top, right, bottom }) {
+
   }
 }
 
