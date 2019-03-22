@@ -21,7 +21,9 @@ import './App.scss';
 
 // Grass Logic
 
-const tileTypes = [MonasteryTile, MonasteryRoadBottomTile];
+const tileTypes = [
+  // MonasteryTile,
+  MonasteryRoadBottomTile];
 
 
 class App extends Component {
@@ -30,9 +32,11 @@ class App extends Component {
     this.createTile = this.createTile.bind(this);
     this.tiles = [];
     this.possibles = [new PossibleTile({ x: 0 , y: 0, onTileClick: this.createTile })];
+    this.orientation = 0
     this.state = {
       tiles: this.tiles,
-      possibles: this.possibles
+      possibles: this.possibles,
+      orientation: this.orientation,
     }
     this.createdFirstTile = false;
 
@@ -90,29 +94,46 @@ class App extends Component {
     return notOccupied
   }
 
+  updateOrientation () {
+    this.orientation = (this.state.orientation + 1) % 4;
+    this.searchForPossibleTiles();
+    this.cleanPossibles();
+    this.setState({ orientation: this.orientation, possibles: this.possibles });
+  }
+
   cleanPossibles () {
     const { possibles } = this;
     const possiblesToRemove = []
+
     possibles.forEach((possible, i) => {
       const neighbors = this.findNeighbors(possible.getNeighbors());
-      const fitsWithNeighbors = this.nextTile.checkPlacing(neighbors);
+      const fitsWithNeighbors = this.nextTile.checkPlacing({...neighbors, orientation: this.orientation});
       const isOccupied = this.tilesHas(possible.x, possible.y) >= 0;
-      console.log(JSON.stringify(possible), i);
       if (!fitsWithNeighbors || isOccupied) possiblesToRemove.push(possible);
     })
 
     possiblesToRemove.forEach(possible => {
       const index = possibles.indexOf(possible);
-      console.log(index);
       possibles.splice(index, 1)
     });
+
     this.possibles = possibles;
   }
 
-  createTile ({ x, y, orientation = 0}) {
+  searchForPossibleTiles () {
+    this.tiles.forEach(tile => {
+      const neighbors = tile.getNeighbors();
+      const positions = Object.values(neighbors).map(v => ({x: v.x, y: v.y}));
+      const newPossibles = positions.map((pos => new PossibleTile({...pos, onTileClick: this.createTile }))).filter(this.canBeAdded.bind(this));
+      this.possibles = this.possibles.concat(newPossibles);
+    })
+    return this.possibles;
+  }
+
+  createTile ({ x, y }) {
     if( this.state.possibles.filter(tile => tile.x === x && tile.y === y).length === 1 ) {
       this.tiles = this.state.tiles.slice();
-      const newTile = new this.nextTile({x, y, orientation})
+      const newTile = new this.nextTile({x, y, orientation: this.state.orientation})
       this.tiles.push(newTile);
 
       this.updateNextTile();
@@ -141,7 +162,7 @@ class App extends Component {
   }
 
   render() {
-    const NextTile = new this.nextTile({});
+    const NextTile = new this.nextTile({orientation: this.state.orientation});
     return (
       <div className='container'>
         <PanZoomContainer>
@@ -152,6 +173,7 @@ class App extends Component {
         </PanZoomContainer>
         <div className='next-tile'>
           { NextTile.component() }
+          <button onClick={this.updateOrientation.bind(this)}> Update Orientation </button>
         </div>
       </div>
     );

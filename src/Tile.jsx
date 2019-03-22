@@ -10,9 +10,10 @@ const GRASS = Symbol('grass');
 const ROAD = Symbol('road');
 
 export class PossibleTile {
-  constructor({ x , y , onTileClick }) {
+  constructor({ x , y , onTileClick, orientation }) {
     this.x = x;
     this.y = y;
+    this.orientation = orientation || 0;
     this.onTileClickParentHandler = onTileClick || (() => {});
   }
 
@@ -31,24 +32,37 @@ export class PossibleTile {
   }
 
   component () {
-    return <BaseTileComponent x={this.x} y={this.y} possible onClick={this.onTileClick.bind(this)}/>
+    return <BaseTileComponent x={this.x} y={this.y} orientation={this.orientation} possible onClick={this.onTileClick.bind(this)}/>
   }
 }
 
 class PlacedTile extends PossibleTile {
-  constructor(props) {
-    super(props);
-    this.orientation = props.orientation || 0;
+  static updateOrientation (orientation) {
+    if(orientation === 0) return;
+    else { this.rotate() }
   }
 
-  static checkPlacing ({ left, top, right, bottom }) {
+  static rotate () {
+    const oldValues = {
+      left: this.left,
+      top: this.top,
+      right: this.right,
+      bottom: this.bottom
+    };
+    this.left = oldValues.bottom;
+    this.top = oldValues.left;
+    this.right = oldValues.top;
+    this.bottom = oldValues.right;
+  }
+
+  static checkPlacing ({ left, top, right, bottom, orientation}) {
+    this.updateOrientation(orientation);
+    console.log(this.left, this.top, this.right, this.bottom)
     // Use the orientation here
-    console.log(top, bottom)
     const leftGood = left ? left.constructor.right === this.left : true
     const topGood = top ? top.constructor.bottom === this.top : true
     const rightGood = right ? right.constructor.left === this.right : true
     const bottomGood = bottom ? bottom.constructor.top === this.bottom : true
-    console.log(leftGood && topGood && rightGood && bottomGood)
     return leftGood && topGood && rightGood && bottomGood;
   }
 }
@@ -79,7 +93,7 @@ export class MonasteryRoadBottomTile extends PlacedTile {
 
   component () {
     return(
-      <BaseTileComponent x={this.x} y={this.y}>
+      <BaseTileComponent x={this.x} y={this.y} orientation={this.orientation}>
         <img alt='monastery tile' src={monasteryRoadBottomImage}/>
       </BaseTileComponent>
     )
@@ -88,18 +102,20 @@ export class MonasteryRoadBottomTile extends PlacedTile {
 
 class BaseTileComponent extends Component {
   style () {
-    if (this.props.x !== undefined && this.props.y !== undefined) {
-      return {
-        width: TILE_SIZE,
-        height: TILE_SIZE,
-        left: (TILE_START_X + this.props.x) * TILE_SIZE,
-        top: (TILE_START_Y + this.props.y) * TILE_SIZE
-      }
-    }
-    return {
+    let style = {
       width: TILE_SIZE,
       height: TILE_SIZE,
+      transform: `rotate(${this.props.orientation * 90}deg)`
     }
+
+    if (this.props.x !== undefined && this.props.y !== undefined) {
+      style = { ...style,
+                left: (TILE_START_X + this.props.x) * TILE_SIZE,
+                top: (TILE_START_Y + this.props.y) * TILE_SIZE
+              }
+    }
+
+    return style
   }
 
   onTileClick () {

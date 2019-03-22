@@ -30,6 +30,12 @@
     top: 0;
     height: 100px;
     width: 100px;
+
+    button {
+      position: absolute;
+      top: 100%;
+    }
+
     img {
       width: 100%;
       height: auto;
