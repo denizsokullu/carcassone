@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PanZoomContainer from '@ajainarayanan/react-pan-zoom';
-import { MonasteryTile, PossibleTile } from './Tile';
+import { MonasteryTile, MonasteryRoadBottomTile, PossibleTile } from './Tile';
 import './App.scss';
 
 // TODO
@@ -21,19 +21,24 @@ import './App.scss';
 
 // Grass Logic
 
+const tileTypes = [MonasteryTile, MonasteryRoadBottomTile];
+
 
 class App extends Component {
   constructor (props) {
     super(props);
     this.createTile = this.createTile.bind(this);
+    this.tiles = [];
+    this.possibles = [new PossibleTile({ x: 0 , y: 0, onTileClick: this.createTile })];
     this.state = {
-      tiles: [],
-      possibles: [new PossibleTile({ x: 0 , y: 0, onTileClick: this.createTile })]
+      tiles: this.tiles,
+      possibles: this.possibles
     }
     this.createdFirstTile = false;
-    this.tiles = [];
-    this.possibles = [];
+
     this.createTile = this.createTile.bind(this);
+
+    this.nextTile = MonasteryRoadBottomTile;
   }
 
   possiblesHas(x, y) {
@@ -54,23 +59,63 @@ class App extends Component {
     return -1;
   }
 
+  updateNextTile (props) {
+    this.nextTile = tileTypes[Math.floor(Math.random()*tileTypes.length)];
+  }
+
+  areTilesEqual(tile1, tile2) {
+    return tile1.x === tile2.x && tile1.y === tile2.y
+  }
+
+  findNeighbors(neighbors) {
+    const actualNeighbors = {
+      left: null,
+      top: null,
+      right: null,
+      bottom: null,
+    };
+    const { left, top, right, bottom } = neighbors
+    this.tiles.forEach(tile => {
+      if(this.areTilesEqual(tile, left)) actualNeighbors.left = tile;
+      else if (this.areTilesEqual(tile, top)) actualNeighbors.top = tile;
+      else if (this.areTilesEqual(tile, right)) actualNeighbors.right = tile;
+      else if (this.areTilesEqual(tile, bottom)) actualNeighbors.bottom = tile;
+    });
+    return actualNeighbors
+  }
+
   canBeAdded (tile) {
     const { x, y } = tile;
-    return this.possiblesHas(x, y) === -1 && this.tilesHas(x, y) === -1;
+    const notOccupied = this.possiblesHas(x, y) === -1 && this.tilesHas(x, y) === -1;
+    return notOccupied
   }
 
   cleanPossibles () {
     const { possibles } = this;
+    const possiblesToRemove = []
     possibles.forEach((possible, i) => {
-      if (this.tilesHas(possible.x, possible.y) >= 0) possibles.splice(i, 1);
+      const neighbors = this.findNeighbors(possible.getNeighbors());
+      const fitsWithNeighbors = this.nextTile.checkPlacing(neighbors);
+      const isOccupied = this.tilesHas(possible.x, possible.y) >= 0;
+      console.log(JSON.stringify(possible), i);
+      if (!fitsWithNeighbors || isOccupied) possiblesToRemove.push(possible);
     })
+
+    possiblesToRemove.forEach(possible => {
+      const index = possibles.indexOf(possible);
+      console.log(index);
+      possibles.splice(index, 1)
+    });
     this.possibles = possibles;
   }
 
   createTile ({ x, y, orientation = 0}) {
     if( this.state.possibles.filter(tile => tile.x === x && tile.y === y).length === 1 ) {
       this.tiles = this.state.tiles.slice();
-      this.tiles.push(new MonasteryTile({x, y, orientation}));
+      const newTile = new this.nextTile({x, y, orientation})
+      this.tiles.push(newTile);
+
+      this.updateNextTile();
 
       const newPossibles = [
         new PossibleTile({ x: x+1 , y, onTileClick: this.createTile }),
@@ -81,6 +126,7 @@ class App extends Component {
 
       const possibles = this.state.possibles.slice();
       this.possibles = possibles.concat(newPossibles);
+
       this.cleanPossibles();
       this.setState({ tiles: this.tiles, possibles: this.possibles });
     }
@@ -95,13 +141,19 @@ class App extends Component {
   }
 
   render() {
+    const NextTile = new this.nextTile({});
     return (
-      <PanZoomContainer>
-        <div className='tile-grid'>
-          { this.renderPlacedTiles() }
-          { this.renderPossibleTiles() }
+      <div className='container'>
+        <PanZoomContainer>
+          <div className='tile-grid'>
+            { this.renderPlacedTiles() }
+            { this.renderPossibleTiles() }
+          </div>
+        </PanZoomContainer>
+        <div className='next-tile'>
+          { NextTile.component() }
         </div>
-      </PanZoomContainer>
+      </div>
     );
   }
 }

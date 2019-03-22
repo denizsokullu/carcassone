@@ -21,4 +21,21 @@
   overflow: hidden;
 }
 
+.container {
+  position: relative;
+
+  .next-tile {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100px;
+    width: 100px;
+    img {
+      width: 100%;
+      height: auto;
+      overflow: hidden;
+    }
+  }
+}
+
 @import 'tile';
