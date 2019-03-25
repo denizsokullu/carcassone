@@ -71,6 +71,7 @@
   "devDependencies": {
     "@ajainarayanan/react-pan-zoom": "0.0.3",
     "@babel/preset-env": "^7.4.2",
+    "immutable": "^4.0.0-rc.12",
     "node-sass": "^4.11.0"
   },
   "jest": {

@@ -15,9 +15,10 @@ export class PossibleTile {
     this.y = y;
     this.orientation = orientation || 0;
     this.onTileClickParentHandler = onTileClick || (() => {});
+    this.onClick = this.onClick.bind(this)
   }
 
-  onTileClick() {
+  onClick() {
     this.onTileClickParentHandler({ x: this.x, y: this.y });
   }
 
@@ -32,37 +33,73 @@ export class PossibleTile {
   }
 
   component () {
-    return <BaseTileComponent x={this.x} y={this.y} orientation={this.orientation} possible onClick={this.onTileClick.bind(this)}/>
+    return null
   }
 }
 
 class PlacedTile extends PossibleTile {
-  static updateOrientation (orientation) {
-    if(orientation === 0) return;
-    else { this.rotate() }
+  constructor(props) {
+    super(props);
+    let sides = {
+      left: this.constructor.left,
+      top: this.constructor.top,
+      right: this.constructor.right,
+      bottom: this.constructor.bottom
+    }
+
+    sides = this.constructor.rotate(sides, this.orientation);
+
+    this.left = sides.left;
+    this.top = sides.top;
+    this.right = sides.right;
+    this.bottom = sides.bottom;
   }
 
-  static rotate () {
-    const oldValues = {
+  static rotate (sides, orientation) {
+    const { left, top, right, bottom } = sides;
+    if (orientation === 0) return sides;
+    else if (orientation === 1) {
+      return {
+        left: bottom,
+        top: left,
+        right: top,
+        bottom: right
+      }
+    }
+    else if (orientation === 2) {
+      return {
+        left: right,
+        top: bottom,
+        right: left,
+        bottom: top
+      }
+    }
+    else if (orientation === 3) {
+      return {
+        left: top,
+        top: right,
+        right: bottom,
+        bottom: left
+      }
+    }
+    return sides
+  }
+
+  static checkPlacing ({ left, top, right, bottom, orientation}) {
+    let sides = {
       left: this.left,
       top: this.top,
       right: this.right,
       bottom: this.bottom
-    };
-    this.left = oldValues.bottom;
-    this.top = oldValues.left;
-    this.right = oldValues.top;
-    this.bottom = oldValues.right;
-  }
+    }
+    sides = this.rotate(sides, orientation);
 
-  static checkPlacing ({ left, top, right, bottom, orientation}) {
-    this.updateOrientation(orientation);
-    console.log(this.left, this.top, this.right, this.bottom)
     // Use the orientation here
-    const leftGood = left ? left.constructor.right === this.left : true
-    const topGood = top ? top.constructor.bottom === this.top : true
-    const rightGood = right ? right.constructor.left === this.right : true
-    const bottomGood = bottom ? bottom.constructor.top === this.bottom : true
+    const leftGood = left ? left.right === sides.left : true
+    const topGood = top ? top.bottom === sides.top : true
+    const rightGood = right ? right.left === sides.right : true
+    const bottomGood = bottom ? bottom.top === sides.bottom : true
+
     return leftGood && topGood && rightGood && bottomGood;
   }
 }
@@ -75,11 +112,9 @@ export class MonasteryTile extends PlacedTile {
   static right = GRASS;
   static bottom = GRASS;
 
-  component () {
+  component (key) {
     return(
-      <BaseTileComponent x={this.x} y={this.y}>
-        <img alt='monastery tile' src={monasteryImage}/>
-      </BaseTileComponent>
+      <img alt='monastery tile' src={monasteryImage}/>
     )
   }
 }
@@ -91,16 +126,14 @@ export class MonasteryRoadBottomTile extends PlacedTile {
   static right = GRASS;
   static bottom = ROAD;
 
-  component () {
+  component (key) {
     return(
-      <BaseTileComponent x={this.x} y={this.y} orientation={this.orientation}>
-        <img alt='monastery tile' src={monasteryRoadBottomImage}/>
-      </BaseTileComponent>
+      <img alt='monastery tile' src={monasteryRoadBottomImage}/>
     )
   }
 }
 
-class BaseTileComponent extends Component {
+export class BaseTileComponent extends Component {
   style () {
     let style = {
       width: TILE_SIZE,
