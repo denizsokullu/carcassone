@@ -18,7 +18,16 @@
 .tile-grid {
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
+  left: calc( 50vw - 50px);
+  top: calc(50vh - 50px);
+}
+
+.pan-container {
+  // position: relative;
+  // left: calc( 50vw - 50px);
+  // top: calc(50vh - 50px);
 }
 
 .container {

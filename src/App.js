@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PanZoomContainer from '@ajainarayanan/react-pan-zoom';
 import { Map } from 'immutable';
-import { MonasteryTile, MonasteryRoadBottomTile, BaseTileComponent, PossibleTile } from './Tile';
+import * as Tile from './Tile';
 import './App.scss';
 
 // TODO
@@ -23,9 +23,18 @@ import './App.scss';
 // Grass Logic
 
 const tileTypes = [
-  MonasteryTile,
-  MonasteryRoadBottomTile
+  Tile.MonasteryTile,
+  Tile.MonasteryRoadBottomTile,
+  Tile.CityTopTile,
+  Tile.CityTopBottomTile,
+  Tile.CityLeftBottomTile,
+  Tile.ConnectedCityLeftRightTile,
+  Tile.ConnectedGuardCityLeftRightTile,
+  Tile.ConnectedCityLeftTopRightTile,
+  Tile.ConnectedCityRightBottomTile,
 ];
+
+const startingTile = Tile.ConnectedCityRightBottomTile;
 
 
 class TileCollection {
@@ -78,7 +87,7 @@ class App extends Component {
     this.createTile = this.createTile.bind(this);
     this.tiles = new TileCollection();
     this.possibles = new TileCollection();
-    this.possibles.addTile(new PossibleTile({ x: 0 , y: 0, onTileClick: this.createTile }));
+    this.possibles.addTile(new Tile.PossibleTile({ x: 0 , y: 0, onTileClick: this.createTile }));
 
     this.orientation = 0
     this.state = {
@@ -90,7 +99,7 @@ class App extends Component {
 
     this.createTile = this.createTile.bind(this);
 
-    this.nextTile = MonasteryRoadBottomTile;
+    this.nextTile = startingTile;
   }
 
   updateNextTile (props) {
@@ -114,7 +123,6 @@ class App extends Component {
   canBeAdded (tile) {
     const { x, y } = tile;
     const notOccupied = !this.possibles.includes(x, y) && !this.tiles.includes(x, y);
-    console.log(notOccupied, x, y)
     return notOccupied
   }
 
@@ -148,7 +156,7 @@ class App extends Component {
       const neighbors = tile.getNeighbors();
       const positions = Object.values(neighbors).map(v => ({x: v.x, y: v.y}));
 
-      const newPossibles = positions.map((pos => new PossibleTile({...pos, onTileClick: this.createTile }))).filter(this.canBeAdded.bind(this));
+      const newPossibles = positions.map((pos => new Tile.PossibleTile({...pos, onTileClick: this.createTile }))).filter(this.canBeAdded.bind(this));
 
       newPossibles.map(t => this.possibles.addTile(t))
     });
@@ -172,24 +180,33 @@ class App extends Component {
 
   renderPlacedTiles () {
     return this.state.tiles.map((tile, index) => (
-      <BaseTileComponent x={tile.x} y={tile.y} orientation={tile.orientation} key={index}>
+      <Tile.BaseTileComponent x={tile.x} y={tile.y} orientation={tile.orientation} key={index}>
         { tile.component() }
-      </BaseTileComponent>
+      </Tile.BaseTileComponent>
     ))
   }
 
   renderPossibleTiles () {
     return this.state.possibles.map((tile, index) => (
-      <BaseTileComponent x={tile.x} y={tile.y} orientation={tile.orientation} possible key={index} onClick={tile.onClick}>
-        { tile.component() }
-      </BaseTileComponent>
+      <Tile.BaseTileComponent x={tile.x} y={tile.y} orientation={tile.orientation} possible key={index} onClick={tile.onClick}/>
     ))
+  }
+
+  handleKeyPress (event) {
+    console.log(event.key)
+    if(event.key === 'r' || event.key === 'R') {
+      this.updateOrientation();
+    }
+  }
+
+  componentDidMount () {
+    document.getElementById('container').focus();
   }
 
   render() {
     const NextTile = new this.nextTile({orientation: this.state.orientation});
     return (
-      <div className='container'>
+      <div className='container' id='container' onKeyPress={this.handleKeyPress.bind(this)} tabIndex='0'>
         <PanZoomContainer>
           <div className='tile-grid'>
             { this.renderPlacedTiles() }
@@ -197,10 +214,9 @@ class App extends Component {
           </div>
         </PanZoomContainer>
         <div className='next-tile'>
-          <BaseTileComponent orientation={NextTile.orientation}>
+          <Tile.BaseTileComponent orientation={NextTile.orientation}>
             { NextTile.component() }
-          </BaseTileComponent>
-          <button onClick={this.updateOrientation.bind(this)}> Update Orientation </button>
+          </Tile.BaseTileComponent>
         </div>
       </div>
     );
