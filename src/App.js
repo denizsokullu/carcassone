@@ -6,21 +6,26 @@ import './App.scss';
 
 // TODO
 
-// Tile Types
-// Tile Type Rules
-
 // Tile Generator
 
 // Round Logic
 // Round has a tile
 // Round is owned by a player
 
-// Tile orientation(Press r)
-// Move the map with touchpad rather than dragging
-
 // Tile art?
 
 // Grass Logic
+
+
+const connection = new WebSocket('ws://localhost:8080');
+window.connection = connection;
+connection.onopen = () => {
+  connection.send('hey yo')
+}
+connection.onmessage = e => {
+  console.log(JSON.parse(e.data));
+}
+
 
 const tileTypes = [
   Tile.MonasteryTile,
@@ -30,11 +35,13 @@ const tileTypes = [
   Tile.CityLeftBottomTile,
   Tile.ConnectedCityLeftRightTile,
   Tile.ConnectedGuardCityLeftRightTile,
+  Tile.ConnectedGuardCityLeftTopTile,
   Tile.ConnectedCityLeftTopRightTile,
   Tile.ConnectedCityRightBottomTile,
+  Tile.ConnectedGuardCityLeftTopRightBottomTile,
 ];
 
-const startingTile = Tile.ConnectedCityRightBottomTile;
+const startingTile = Tile.ConnectedGuardCityLeftTopRightBottomTile;
 
 
 class TileCollection {

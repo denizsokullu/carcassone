@@ -4,6 +4,8 @@ import cityTopBottomImage from './tiles/city/CityTopBottom.png';
 import cityLeftBottomImage from './tiles/city/CityLeftBottom.png';
 import connectedCityLeftRightImage from './tiles/city/ConnectedCityLeftRight.png';
 import connectedGuardCityLeftRightImage from './tiles/city/ConnectedGuardCityLeftRight.png';
+import connectedGuardCityLeftTopImage from './tiles/city/ConnectedGuardCityLeftTop.png';
+import connectedGuardCityLeftTopRightBottomImage from './tiles/city/ConnectedGuardCityLeftTopRightBottom.png';
 import connectedCityLeftTopRightImage from './tiles/city/ConnectedCityLeftTopRight.png';
 import connectedCityRightBottomImage from './tiles/city/ConnectedCityRightBottom.png'
 import monasteryImage from './tiles/monastery/Monastery.png';
@@ -196,6 +198,21 @@ export class ConnectedGuardCityLeftRightTile extends GuardPlacedTile {
   static image = connectedGuardCityLeftRightImage;
 }
 
+export class ConnectedGuardCityLeftTopTile extends GuardPlacedTile {
+  static left = CITY;
+  static top = CITY;
+  static right = GRASS;
+  static bottom = GRASS;
+  static image = connectedGuardCityLeftTopImage;
+}
+
+export class ConnectedGuardCityLeftTopRightBottomTile extends GuardPlacedTile {
+  static left = CITY;
+  static top = CITY;
+  static right = CITY;
+  static bottom = CITY;
+  static image = connectedGuardCityLeftTopRightBottomImage;
+}
 export class ConnectedCityLeftTopRightTile extends PlacedTile {
   static left = CITY;
   static top = CITY;
