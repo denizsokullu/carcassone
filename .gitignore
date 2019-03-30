@@ -6,6 +6,7 @@
 .pnp.js
 
 carcassone-server/node_modules
+carcassone-server/connection-key.json
 
 # testing
 /coverage

@@ -53,4 +53,19 @@
   }
 }
 
+.hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  .scoreboard {
+    padding: .5rem;
+    h4 {
+      margin: 0
+    }
+    ul {
+      margin-top: .75rem;
+    }
+  }
+}
+
 @import 'tile';

@@ -14,3 +14,8 @@ wss.on('connection', ws => {
   users = users.add(id);
   ws.send(JSON.stringify(users.toJS()))
 })
+
+
+// there is a gameState, after every action it is written into the db
+// after the state is persisted in the db
+// send a broadcast to all users about it
